@@ -16,7 +16,9 @@ coverage/
 npm-debug.log*
 
 # Editors and OS
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 .DS_Store
 Thumbs.db
