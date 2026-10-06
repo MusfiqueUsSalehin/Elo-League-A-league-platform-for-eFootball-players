@@ -25,12 +25,12 @@ Node.js, Express and MongoDB on the server. React, Vite and Tailwind CSS on the 
 
 ## Branching model
 
-| Branch | Purpose |
-|---|---|
-| `master` | Integration branch. Every merge here leaves the app in a working state. |
-| `feature/*` | One logical change per branch, built with incremental commits. |
-| `pre-release` | Cut once the MVP is integrated. Integration fixes, docs and deployment checks. |
-| `release/v1.0.0` | Cut from `pre-release`. The version that is deployed and demonstrated. |
+| Branch           | Purpose                                                                        |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `master`         | Integration branch. Every merge here leaves the app in a working state.        |
+| `feature/*`      | One logical change per branch, built with incremental commits.                 |
+| `pre-release`    | Cut once the MVP is integrated. Integration fixes, docs and deployment checks. |
+| `release/v1.0.0` | Cut from `pre-release`. The version that is deployed and demonstrated.         |
 
 Feature branches are merged with `--no-ff` so the history keeps the shape of the work.
 
