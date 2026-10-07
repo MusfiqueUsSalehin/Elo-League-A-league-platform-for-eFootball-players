@@ -1,0 +1,19 @@
+{
+  "name": "elo-league-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API server for Elo League",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.6",
+    "zod": "^3.25.76"
+  }
+}
