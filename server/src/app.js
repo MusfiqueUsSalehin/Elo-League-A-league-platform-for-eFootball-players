@@ -2,6 +2,7 @@ import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import { errorHandler, notFound } from './middleware/error.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { createRoutes } from './routes/index.js';
 
@@ -22,6 +23,9 @@ export function createApp(deps) {
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
   app.use('/api', createRoutes(deps));
+
+  app.use(notFound);
+  app.use(errorHandler(env));
 
   return app;
 }
