@@ -3,6 +3,12 @@ import { describe, it } from 'node:test';
 import { loadEnv } from '../src/config/env.js';
 
 describe('loadEnv', () => {
+  const production = {
+    NODE_ENV: 'production',
+    MONGO_URI: 'mongodb://db:27017/elo',
+    JWT_SECRET: 'x'.repeat(40),
+  };
+
   it('applies development defaults', () => {
     const env = loadEnv({});
     assert.equal(env.nodeEnv, 'development');
@@ -39,13 +45,41 @@ describe('loadEnv', () => {
   });
 
   it('requires MONGO_URI in production', () => {
-    assert.throws(() => loadEnv({ NODE_ENV: 'production' }), /MONGO_URI/);
+    assert.throws(() => loadEnv({ ...production, MONGO_URI: undefined }), /MONGO_URI/);
   });
 
   it('accepts a complete production config', () => {
-    const env = loadEnv({ NODE_ENV: 'production', MONGO_URI: 'mongodb://db:27017/elo' });
+    const env = loadEnv(production);
     assert.equal(env.isProd, true);
     assert.equal(env.mongoUri, 'mongodb://db:27017/elo');
+    assert.equal(env.jwtSecret.length, 40);
+  });
+
+  it('requires JWT_SECRET in production', () => {
+    assert.throws(() => loadEnv({ ...production, JWT_SECRET: undefined }), /JWT_SECRET/);
+  });
+
+  it('rejects a short JWT_SECRET', () => {
+    assert.throws(() => loadEnv({ JWT_SECRET: 'short' }), /JWT_SECRET/);
+  });
+
+  it('rejects weak password hashing in production', () => {
+    assert.throws(() => loadEnv({ ...production, BCRYPT_ROUNDS: '4' }), /BCRYPT_ROUNDS/);
+  });
+
+  it('falls back to a development secret outside production', () => {
+    assert.ok(loadEnv({}).jwtSecret.length >= 32);
+  });
+
+  it('reads and normalises the first admin settings', () => {
+    const env = loadEnv({
+      ADMIN_USERNAME: 'Boss',
+      ADMIN_EMAIL: 'Boss@Example.com',
+      ADMIN_PASSWORD: 'x',
+    });
+    assert.equal(env.admin.username, 'boss');
+    assert.equal(env.admin.email, 'boss@example.com');
+    assert.equal(env.admin.password, 'x');
   });
 
   it('reports every problem at once', () => {

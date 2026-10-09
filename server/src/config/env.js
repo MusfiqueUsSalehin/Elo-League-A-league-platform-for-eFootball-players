@@ -6,6 +6,8 @@ import { z } from 'zod';
 
 const ENV_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env');
 const DEFAULT_MONGO_URI = 'mongodb://127.0.0.1:27017/elo_league';
+// Only ever used outside production, so a missing secret cannot reach a real deployment.
+const DEV_JWT_SECRET = 'development-only-secret-never-use-in-production';
 
 const schema = z
   .object({
@@ -18,15 +20,28 @@ const schema = z
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),
+
+    JWT_SECRET: z.string().min(32, 'must be at least 32 characters').optional(),
+    JWT_EXPIRES_DAYS: z.coerce.number().int().min(1).max(90).default(7),
+    BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
+    LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().min(1).max(10000).default(20),
+
+    ADMIN_NAME: z.string().trim().min(2).max(60).optional(),
+    ADMIN_USERNAME: z
+      .string()
+      .trim()
+      .regex(/^[a-z0-9._-]{3,30}$/i, 'use 3-30 letters, numbers, dots, dashes or underscores')
+      .optional(),
+    ADMIN_EMAIL: z.string().trim().email().optional(),
+    ADMIN_PASSWORD: z.string().optional(),
   })
   .superRefine((value, ctx) => {
-    if (value.NODE_ENV === 'production' && !value.MONGO_URI) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['MONGO_URI'],
-        message: 'is required in production',
-      });
-    }
+    if (value.NODE_ENV !== 'production') return;
+    const require = (path, message) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
+    if (!value.MONGO_URI) require('MONGO_URI', 'is required in production');
+    if (!value.JWT_SECRET) require('JWT_SECRET', 'is required in production');
+    if (value.BCRYPT_ROUNDS < 10) require('BCRYPT_ROUNDS', 'must be at least 10 in production');
   });
 
 function readEnvFile() {
@@ -39,9 +54,10 @@ function readEnvFile() {
 }
 
 /**
- * Validates configuration and returns a frozen, typed-ish object.
+ * Validates configuration and returns a frozen config object.
  * Real environment variables win over values in server/.env.
  * Throws one readable error listing every problem, so a bad deploy fails at boot.
+ * Never log this object: it holds the JWT secret and the first admin's password.
  */
 export function loadEnv(source = { ...readEnvFile(), ...process.env }) {
   const cleaned = Object.fromEntries(Object.entries(source).filter(([, value]) => value !== ''));
@@ -66,5 +82,17 @@ export function loadEnv(source = { ...readEnvFile(), ...process.env }) {
     timezone: value.TIMEZONE,
     mongoUri: value.MONGO_URI ?? DEFAULT_MONGO_URI,
     logLevel: value.LOG_LEVEL,
+
+    jwtSecret: value.JWT_SECRET ?? DEV_JWT_SECRET,
+    jwtExpiresDays: value.JWT_EXPIRES_DAYS,
+    bcryptRounds: value.BCRYPT_ROUNDS,
+    loginRateLimitMax: value.LOGIN_RATE_LIMIT_MAX,
+
+    admin: {
+      name: value.ADMIN_NAME ?? 'League Admin',
+      username: (value.ADMIN_USERNAME ?? 'admin').toLowerCase(),
+      email: (value.ADMIN_EMAIL ?? 'admin@eloleague.local').toLowerCase(),
+      password: value.ADMIN_PASSWORD,
+    },
   });
 }
