@@ -7,7 +7,12 @@ export const notFound = (req, _res, next) => {
 /** Maps any thrown value to a status and a message that is safe to show. */
 function toResponse(err) {
   if (err instanceof ApiError) {
-    return { status: err.statusCode, message: err.message, details: err.details };
+    return {
+      status: err.statusCode,
+      message: err.message,
+      details: err.details,
+      code: err.code,
+    };
   }
   if (err.type === 'entity.parse.failed') {
     return { status: 400, message: 'The request body is not valid JSON' };
@@ -41,14 +46,16 @@ export const errorHandler =
   (err, req, res, next) => {
     if (res.headersSent) return next(err);
 
-    const { status, message, details } = toResponse(err);
+    const { status, message, details, code } = toResponse(err);
     if (status >= 500) (req.log ?? console).error({ err }, 'unhandled error');
 
     res.status(status).json({
       success: false,
       // Server errors only reveal their real message outside production.
       message: status >= 500 && !isProd ? err.message || message : message,
+
       ...(details ? { details } : {}),
+      ...(code ? { code } : {}),
       ...(req.id ? { requestId: req.id } : {}),
       ...(isProd ? {} : { stack: err.stack }),
     });
