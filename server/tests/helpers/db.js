@@ -6,6 +6,7 @@ let mongod;
 export async function startTestDb() {
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri('elo_league_test'));
+  await Promise.all(Object.values(mongoose.models).map((model) => model.init()));
 }
 
 export async function clearTestDb() {
