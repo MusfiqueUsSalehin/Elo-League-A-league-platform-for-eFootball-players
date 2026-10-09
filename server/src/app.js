@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { errorHandler, notFound } from './middleware/error.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { createRoutes } from './routes/index.js';
-
+import cookieParser from 'cookie-parser';
 /**
  * Builds the app from its dependencies so tests can inject their own.
  * `deps` carries env, logger and whatever the routes need.
@@ -16,6 +16,7 @@ export function createApp(deps) {
 
   app.set('trust proxy', 1);
   app.use(requestLogger(logger));
+  app.use(cookieParser());
   app.use(helmet());
   app.use(cors({ origin: env.clientUrl, credentials: true }));
   app.use(compression());
