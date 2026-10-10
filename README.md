@@ -23,6 +23,19 @@ fixtures, form and stats, and a rating that moves with every confirmed result.
 
 Node.js, Express and MongoDB on the server. React, Vite and Tailwind CSS on the client.
 
+## Running locally
+
+Requires Node.js 20.19 or newer and a MongoDB database (Atlas free tier or local).
+
+    npm install
+    npm run install:all
+    Copy-Item server/.env.example server/.env    # then fill in MONGO_URI, JWT_SECRET, ADMIN_PASSWORD
+    npm run seed:admin --prefix server
+    npm run dev
+
+Open http://localhost:5173 and sign in as the admin. See `server/README.md` and
+`client/README.md` for details.
+
 ## Branching model
 
 | Branch           | Purpose                                                                        |
