@@ -19,5 +19,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
     restoreMocks: true,
+    // Worker threads instead of child processes: child workers crash on startup
+    // on some Windows setups (exit code 0xC0000409), and threads are as fast here.
+    pool: 'threads',
   },
 });
