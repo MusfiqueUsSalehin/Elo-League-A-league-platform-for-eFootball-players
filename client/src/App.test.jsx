@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -31,7 +31,7 @@ describe('signing in', () => {
     renderApp('/dashboard');
 
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
-    expect(document.title).toBe('Sign in · Elo League');
+    await waitFor(() => expect(document.title).toBe('Sign in · Elo League'));
   });
 
   it('treats an unreachable server as signed out rather than hanging', async () => {
