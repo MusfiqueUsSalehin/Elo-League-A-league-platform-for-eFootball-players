@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext.jsx';
+import Forbidden from '../pages/Forbidden.jsx';
 import { FullPageSpinner } from './ui/index.jsx';
 
 const CHANGE_PASSWORD_PATH = '/change-password';
@@ -28,4 +29,10 @@ export function GuestOnly() {
   if (status === 'loading') return <FullPageSpinner />;
   if (user) return <Navigate to={location.state?.from?.pathname ?? '/dashboard'} replace />;
   return <Outlet />;
+}
+
+/** For admin-only screens. Players who find the address get an explanation, not a blank page. */
+export function RequireAdmin() {
+  const { isAdmin } = useAuth();
+  return isAdmin ? <Outlet /> : <Forbidden />;
 }
