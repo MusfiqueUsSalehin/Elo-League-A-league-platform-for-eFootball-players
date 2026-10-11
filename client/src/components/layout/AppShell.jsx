@@ -1,11 +1,14 @@
-import { LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { Avatar, cx } from '../ui/index.jsx';
 
 // Each feature adds its own entry here as it ships.
-const NAV_ITEMS = [{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }];
+const NAV_ITEMS = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/players', label: 'Players', icon: Users, adminOnly: true },
+];
 
 const linkClass = ({ isActive }) =>
   cx(
@@ -31,8 +34,9 @@ function Brand() {
 }
 
 function SidebarContent({ onNavigate }) {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
+  const items = NAV_ITEMS.filter((item) => isAdmin || !item.adminOnly);
 
   const signOut = async () => {
     await logout();
@@ -44,7 +48,7 @@ function SidebarContent({ onNavigate }) {
       <Brand />
 
       <nav aria-label="Main" className="space-y-1">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to} className={linkClass} onClick={onNavigate}>
             <Icon size={17} aria-hidden="true" />
             {label}
