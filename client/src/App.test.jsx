@@ -1,20 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
-import App from './App.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
 import { callsTo, failure, jsonResponse, mockApi, newcomer, player } from './test/fakeApi.js';
-
-function renderApp(path = '/') {
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </MemoryRouter>
-  );
-}
+import { renderApp } from './test/renderApp.jsx';
 
 const signedOut = () => failure(401, 'You need to sign in to continue');
 const signedInAs = (user) => () => jsonResponse(200, { success: true, user });
