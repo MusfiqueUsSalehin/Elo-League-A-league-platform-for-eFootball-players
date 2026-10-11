@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-turf-900 font-sans text-chalk antialiased;
+  }
+  /* A faint touchline grid: the pitch under floodlights, not a decorative gradient. */
+  #root {
+    background-image:
+      linear-gradient(rgba(43, 174, 102, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(43, 174, 102, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  ::selection {
+    @apply bg-flood text-turf-900;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-flood ring-offset-2 ring-offset-turf-900;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .scoreline {
+    @apply font-display tabular-nums tracking-tight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
