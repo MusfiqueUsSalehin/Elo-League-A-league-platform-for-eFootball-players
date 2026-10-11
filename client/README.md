@@ -53,3 +53,22 @@ origin and the session cookie behaves exactly as it does in production.
 - Tests use Testing Library and a fake `fetch` (`src/test/fakeApi.js`). An unexpected request
   fails the test.
 - Fonts are bundled, so the app makes no third-party requests.
+
+## Admin screens
+
+Admins get a **Players** link in the navigation. `/admin/players` lists accounts with search,
+role and status filters and pagination, and lets an admin add players, edit them, deactivate
+or reactivate them and reset passwords.
+
+- A temporary password is shown once, in a dialog, and is never stored in readable form.
+- Admins cannot deactivate, demote or reset themselves. The buttons are disabled and the
+  server enforces the same rule.
+- Accounts are deactivated, never deleted, so match history stays intact.
+- Players who open an admin address see a 403 page; the server rejects the requests anyway.
+
+## Dialogs
+
+`Modal` (in `components/ui`) is built on the native `<dialog>` element, so the browser traps
+focus, makes the page behind it inert, closes on Escape and restores focus. Its content is
+mounted only while open, so forms inside always start empty. Use `ConfirmDialog` for
+yes/no questions with consequences.
