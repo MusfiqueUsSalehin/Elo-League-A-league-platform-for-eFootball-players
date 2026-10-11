@@ -42,6 +42,16 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
+  // Re-reads the signed-in user, for when their own details were changed elsewhere in the app.
+  const refreshUser = useCallback(async () => {
+    try {
+      const data = await api.get('/auth/me');
+      setState({ status: 'ready', user: data.user });
+    } catch {
+      // A 401 already signs the user out; anything else just leaves the old details on screen.
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
@@ -60,8 +70,9 @@ export function AuthProvider({ children }) {
       login,
       logout,
       changePassword,
+      refreshUser,
     }),
-    [state, login, logout, changePassword]
+    [state, login, logout, changePassword, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

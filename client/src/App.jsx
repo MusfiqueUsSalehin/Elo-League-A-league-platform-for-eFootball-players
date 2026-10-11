@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import AppShell from './components/layout/AppShell.jsx';
-import { GuestOnly, RequireAuth } from './components/RouteGuards.jsx';
+import { GuestOnly, RequireAdmin, RequireAuth } from './components/RouteGuards.jsx';
 import { FullPageSpinner } from './components/ui/index.jsx';
 
 // Each screen is its own chunk, so people only download what they open.
@@ -9,6 +9,7 @@ const Login = lazy(() => import('./pages/Login.jsx'));
 const ChangePassword = lazy(() => import('./pages/ChangePassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+const AdminPlayers = lazy(() => import('./pages/admin/AdminPlayers.jsx'));
 
 export default function App() {
   return (
@@ -24,6 +25,9 @@ export default function App() {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route element={<AppShell />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<RequireAdmin />}>
+              <Route path="/admin/players" element={<AdminPlayers />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Route>
