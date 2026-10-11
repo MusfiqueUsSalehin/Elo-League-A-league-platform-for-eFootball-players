@@ -1,5 +1,5 @@
-import { CircleCheck, Info, LoaderCircle, TriangleAlert } from 'lucide-react';
-import { useId } from 'react';
+import { CircleCheck, Info, LoaderCircle, TriangleAlert, X } from 'lucide-react';
+import { useEffect, useId, useRef } from 'react';
 
 export const cx = (...parts) => parts.filter(Boolean).join(' ');
 
@@ -98,40 +98,71 @@ export const StatTile = ({ label, value, sub, tone }) => (
 const inputBase =
   'w-full rounded-lg border bg-turf-900 px-3 py-2 text-sm text-chalk placeholder:text-mist/60 focus:border-flood/60';
 
-/**
- * A labelled input. The label, hint and error are wired to the input for screen readers,
- * so callers only pass text. Any other prop goes straight to the <input>.
- */
-export function TextField({ label, hint, error, className, id, ...rest }) {
+/** Wires a field's hint and error to its input so screen readers announce them. */
+function useFieldIds(id, hint, error) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = `${inputId}-hint`;
   const errorId = `${inputId}-error`;
   const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(' ') || undefined;
+  return { inputId, hintId, errorId, describedBy };
+}
 
+function FieldFrame({ label, hint, error, className, ids, children }) {
   return (
     <div className={cx('space-y-1.5', className)}>
-      <label htmlFor={inputId} className="block text-sm text-mist">
+      <label htmlFor={ids.inputId} className="block text-sm text-mist">
         {label}
       </label>
-      <input
-        id={inputId}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        className={cx(inputBase, error ? 'border-loss' : 'border-line')}
-        {...rest}
-      />
+      {children}
       {hint && (
-        <p id={hintId} className="text-xs text-mist/80">
+        <p id={ids.hintId} className="text-xs text-mist/80">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-loss">
+        <p id={ids.errorId} className="text-xs text-loss">
           {error}
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * A labelled input. The label, hint and error are wired to the input for screen readers,
+ * so callers only pass text. Any other prop goes straight to the <input>.
+ */
+export function TextField({ label, hint, error, className, id, ...rest }) {
+  const ids = useFieldIds(id, hint, error);
+  return (
+    <FieldFrame label={label} hint={hint} error={error} className={className} ids={ids}>
+      <input
+        id={ids.inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={ids.describedBy}
+        className={cx(inputBase, error ? 'border-loss' : 'border-line')}
+        {...rest}
+      />
+    </FieldFrame>
+  );
+}
+
+/** Same as TextField, for a list of options passed as <option> children. */
+export function SelectField({ label, hint, error, className, id, children, ...rest }) {
+  const ids = useFieldIds(id, hint, error);
+  return (
+    <FieldFrame label={label} hint={hint} error={error} className={className} ids={ids}>
+      <select
+        id={ids.inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={ids.describedBy}
+        className={cx(inputBase, 'disabled:opacity-60', error ? 'border-loss' : 'border-line')}
+        {...rest}
+      >
+        {children}
+      </select>
+    </FieldFrame>
   );
 }
 
@@ -192,5 +223,97 @@ export function Avatar({ name = '', size = 36 }) {
     >
       {initials}
     </span>
+  );
+}
+
+/* ---------- Badges ---------- */
+
+const badgeTones = {
+  neutral: 'bg-turf-700 text-mist',
+  gold: 'bg-flood/15 text-flood',
+  green: 'bg-win/15 text-win',
+  red: 'bg-loss/15 text-loss',
+};
+
+export const Badge = ({ tone = 'neutral', children }) => (
+  <span
+    className={cx(
+      'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+      badgeTones[tone]
+    )}
+  >
+    {children}
+  </span>
+);
+
+/* ---------- Dialogs ---------- */
+
+const modalSizes = { sm: 'max-w-sm', md: 'max-w-lg' };
+
+/**
+ * A modal built on the native <dialog> element, so the browser traps focus, makes the page
+ * behind it inert, closes on Escape and returns focus to the button that opened it.
+ * The content is only mounted while open, so forms inside start fresh every time.
+ */
+export function Modal({ open, onClose, title, description, size = 'md', children }) {
+  const dialogRef = useRef(null);
+  const pressStartedOnBackdrop = useRef(false);
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
+      // Escape: hand the decision to the page instead of letting the browser close it.
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      // A click on the dimmed backdrop lands on the dialog element itself. Only a press that
+      // both started and ended there counts, so dragging to select text inside a field and
+      // letting go outside the dialog does not close it.
+      onMouseDown={(event) => {
+        pressStartedOnBackdrop.current = event.target === event.currentTarget;
+      }}
+      onClick={(event) => {
+        if (pressStartedOnBackdrop.current && event.target === event.currentTarget) onClose();
+      }}
+      className={cx(
+        'm-auto max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto rounded-xl border border-line bg-turf-800 p-0 text-chalk shadow-panel backdrop:bg-black/70',
+        modalSizes[size]
+      )}
+    >
+      {open && (
+        <div className="p-6">
+          <div className="flex items-start justify-between gap-4">
+            <h2 id={titleId} className="font-display text-2xl leading-tight">
+              {title}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1 text-mist hover:bg-turf-700 hover:text-chalk"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          {description && (
+            <p id={descriptionId} className="mt-1 text-sm text-mist">
+              {description}
+            </p>
+          )}
+          <div className="mt-5">{children}</div>
+        </div>
+      )}
+    </dialog>
   );
 }
