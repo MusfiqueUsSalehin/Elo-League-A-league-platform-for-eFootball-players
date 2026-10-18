@@ -1,38 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { api } from '../api/client.js';
+import { useList } from './useList.js';
 
-/** Turns filters into a query string, leaving out anything empty. */
-export function toQuery(params) {
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== '' && value !== undefined && value !== null) query.set(key, value);
-  }
-  return query.toString();
-}
+export { toQuery } from './useList.js';
 
-/**
- * Loads one page of players. While a new page loads, the previous one stays on screen,
- * and a slow earlier request can never overwrite a newer one.
- */
-export function usePlayers(params) {
-  const [state, setState] = useState({ status: 'loading', data: null, error: '' });
-  const [reloadKey, setReloadKey] = useState(0);
-  const query = toQuery(params);
-
-  useEffect(() => {
-    let current = true;
-    setState((previous) => ({ ...previous, status: 'loading', error: '' }));
-
-    api
-      .get(`/users?${query}`)
-      .then((data) => current && setState({ status: 'ready', data, error: '' }))
-      .catch((err) => current && setState({ status: 'error', data: null, error: err.message }));
-
-    return () => {
-      current = false;
-    };
-  }, [query, reloadKey]);
-
-  const reload = useCallback(() => setReloadKey((key) => key + 1), []);
-  return { ...state, reload };
-}
+/** One page of league players (accounts), for the admin screen. */
+export const usePlayers = (params) => useList('/users', params);
