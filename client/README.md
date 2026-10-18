@@ -72,3 +72,14 @@ or reactivate them and reset passwords.
 focus, makes the page behind it inert, closes on Escape and restores focus. Its content is
 mounted only while open, so forms inside always start empty. Use `ConfirmDialog` for
 yes/no questions with consequences.
+
+## Teams
+
+- `/teams` lists teams as cards: "My teams" or "All teams", with search and pagination.
+- `/teams/:id` is the team page. Anyone can look; only the manager (or an admin) sees the
+  buttons to edit the team, add, edit or remove squad players, and paste a squad list.
+- `/teams/:id/lineup` shows the formation on a pitch. Select a spot to pick who plays there;
+  the natural position is listed first. Changes are kept in the page until "Save line-up".
+- Pasting a squad takes one player per line: name, position, rating. Bad lines are skipped and
+  reported with their line number.
+- Formation layouts live in `src/lib/formations.js` and must match the list on the server.
