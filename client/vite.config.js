@@ -22,5 +22,8 @@ export default defineConfig({
     // Worker threads instead of child processes: child workers crash on startup
     // on some Windows setups (exit code 0xC0000409), and threads are as fast here.
     pool: 'threads',
+    // One file at a time. Running them all together needs more memory than a small
+    // machine has, and the suite is quick enough that it barely changes the time.
+    fileParallelism: false,
   },
 });

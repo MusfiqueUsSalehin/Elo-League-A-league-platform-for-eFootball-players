@@ -10,6 +10,10 @@ const ChangePassword = lazy(() => import('./pages/ChangePassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 const AdminPlayers = lazy(() => import('./pages/admin/AdminPlayers.jsx'));
+const Teams = lazy(() => import('./pages/Teams.jsx'));
+const TeamLayout = lazy(() => import('./pages/team/TeamLayout.jsx'));
+const SquadTab = lazy(() => import('./pages/team/SquadTab.jsx'));
+const LineupTab = lazy(() => import('./pages/team/LineupTab.jsx'));
 
 export default function App() {
   return (
@@ -25,6 +29,11 @@ export default function App() {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route element={<AppShell />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/teams" element={<Teams />} />
+            <Route path="/teams/:teamId" element={<TeamLayout />}>
+              <Route index element={<SquadTab />} />
+              <Route path="lineup" element={<LineupTab />} />
+            </Route>
             <Route element={<RequireAdmin />}>
               <Route path="/admin/players" element={<AdminPlayers />} />
             </Route>
