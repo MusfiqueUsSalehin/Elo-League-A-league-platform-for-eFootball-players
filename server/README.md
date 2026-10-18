@@ -92,3 +92,32 @@ Real environment variables override values in `server/.env`.
 
 Admins cannot deactivate, demote or reset themselves, so the league always has an active admin.
 Accounts are deactivated, never deleted, to keep match history intact.
+
+## Teams and squads
+
+Every signed-in player can look at any team. Only a team's owner (or an admin) can change it.
+A player can own at most 5 teams, and a squad holds at most 40 players.
+
+| Endpoint                                | Who            | Purpose                                                    |
+| --------------------------------------- | -------------- | ---------------------------------------------------------- |
+| `GET /api/teams`                        | signed in      | List teams (`q`, `mine=true`, `owner`, `page`, `limit`)    |
+| `POST /api/teams`                       | signed in      | Create a team. Admins can pass `ownerId` for someone else. |
+| `GET /api/teams/:id`                    | signed in      | A team with its squad, best rated first                    |
+| `PATCH /api/teams/:id`                  | owner or admin | Rename a team or change its formation                      |
+| `DELETE /api/teams/:id`                 | owner or admin | Delete a team and its squad                                |
+| `PUT /api/teams/:id/lineup`             | owner or admin | Save the formation and starting XI (replaces the old one)  |
+| `POST /api/teams/:id/squad`             | owner or admin | Add a squad player (`name`, `position`, `rating`)          |
+| `PATCH /api/teams/:id/squad/:playerId`  | owner or admin | Edit a squad player                                        |
+| `DELETE /api/teams/:id/squad/:playerId` | owner or admin | Remove a squad player (and from the line-up)               |
+| `POST /api/teams/:id/squad/import`      | owner or admin | Paste a squad list, one `Name, Position, Rating` per line  |
+
+Notes:
+
+- Team names are unique per owner, ignoring letter case. Squad player names are unique per team.
+- Positions: GK, CB, LB, RB, DMF, CMF, AMF, LMF, RMF, LWF, RWF, SS, CF. Ratings are whole
+  numbers from 1 to 120.
+- A line-up is a list of `{ slot, footballer }` where slot 0 is the goalkeeper. It can be saved
+  part-filled while the manager is still choosing.
+- The paste import never fails on a bad line: good lines are added, and the rest come back in
+  `skipped` with their line number and the reason.
+- Requests cannot set `owner`, `lineup` or any other field that is not listed above.
