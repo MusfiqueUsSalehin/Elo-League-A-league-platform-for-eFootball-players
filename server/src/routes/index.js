@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createAuth } from '../middleware/auth.js';
 import { createAuthRoutes } from './auth.routes.js';
 import { createHealthRoutes } from './health.routes.js';
+import { createNotificationRoutes } from './notifications.routes.js';
 import { createTeamRoutes } from './teams.routes.js';
 import { createUserRoutes } from './user.routes.js';
 
@@ -18,6 +19,7 @@ export function createRoutes(deps) {
   router.use('/auth', createAuthRoutes(routeDeps));
   router.use('/users', createUserRoutes(routeDeps));
   router.use('/teams', createTeamRoutes(routeDeps));
+  router.use('/notifications', createNotificationRoutes(routeDeps));
 
   return router;
 }
