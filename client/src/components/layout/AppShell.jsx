@@ -1,13 +1,15 @@
-import { LayoutDashboard, LogOut, Menu, Shield, Users, X } from 'lucide-react';
+import { Bell, LayoutDashboard, LogOut, Menu, Shield, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { UnreadProvider, useUnread } from '../../context/UnreadContext.jsx';
 import { Avatar, cx } from '../ui/index.jsx';
 
 // Each feature adds its own entry here as it ships.
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/teams', label: 'Teams', icon: Shield },
+  { to: '/notifications', label: 'Notifications', icon: Bell, showsUnread: true },
   { to: '/admin/players', label: 'Players', icon: Users, adminOnly: true },
 ];
 
@@ -36,6 +38,7 @@ function Brand() {
 
 function SidebarContent({ onNavigate }) {
   const { user, isAdmin, logout } = useAuth();
+  const { count } = useUnread();
   const navigate = useNavigate();
   const items = NAV_ITEMS.filter((item) => isAdmin || !item.adminOnly);
 
@@ -49,10 +52,21 @@ function SidebarContent({ onNavigate }) {
       <Brand />
 
       <nav aria-label="Main" className="space-y-1">
-        {items.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon, showsUnread }) => (
           <NavLink key={to} to={to} className={linkClass} onClick={onNavigate}>
             <Icon size={17} aria-hidden="true" />
             {label}
+            {showsUnread && count > 0 && (
+              <>
+                <span
+                  aria-hidden="true"
+                  className="ml-auto rounded-full bg-flood px-2 py-0.5 text-xs font-semibold text-turf-900"
+                >
+                  {count > 99 ? '99+' : count}
+                </span>
+                <span className="sr-only">{count} unread</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -85,54 +99,56 @@ export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-flood focus:px-4 focus:py-2 focus:text-turf-900"
-      >
-        Skip to content
-      </a>
-
-      <aside className="hidden w-64 shrink-0 border-r border-line bg-turf-900/80 lg:block">
-        <div className="sticky top-0 h-screen">
-          <SidebarContent />
-        </div>
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-line bg-turf-900/95 backdrop-blur lg:hidden">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <button
-              type="button"
-              onClick={() => setMenuOpen((open) => !open)}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              className="rounded-lg border border-line p-2"
-            >
-              {menuOpen ? (
-                <X size={18} aria-hidden="true" />
-              ) : (
-                <Menu size={18} aria-hidden="true" />
-              )}
-            </button>
-            <span className="font-display text-lg">Elo League</span>
-          </div>
-          {menuOpen && (
-            <div id="mobile-menu" className="border-t border-line">
-              <SidebarContent onNavigate={() => setMenuOpen(false)} />
-            </div>
-          )}
-        </header>
-
-        <main
-          id="main"
-          tabIndex={-1}
-          className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:py-8"
+    <UnreadProvider>
+      <div className="flex min-h-screen">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-flood focus:px-4 focus:py-2 focus:text-turf-900"
         >
-          <Outlet />
-        </main>
+          Skip to content
+        </a>
+
+        <aside className="hidden w-64 shrink-0 border-r border-line bg-turf-900/80 lg:block">
+          <div className="sticky top-0 h-screen">
+            <SidebarContent />
+          </div>
+        </aside>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 border-b border-line bg-turf-900/95 backdrop-blur lg:hidden">
+            <div className="flex items-center gap-3 px-4 py-3">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                className="rounded-lg border border-line p-2"
+              >
+                {menuOpen ? (
+                  <X size={18} aria-hidden="true" />
+                ) : (
+                  <Menu size={18} aria-hidden="true" />
+                )}
+              </button>
+              <span className="font-display text-lg">Elo League</span>
+            </div>
+            {menuOpen && (
+              <div id="mobile-menu" className="border-t border-line">
+                <SidebarContent onNavigate={() => setMenuOpen(false)} />
+              </div>
+            )}
+          </header>
+
+          <main
+            id="main"
+            tabIndex={-1}
+            className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:py-8"
+          >
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </UnreadProvider>
   );
 }
