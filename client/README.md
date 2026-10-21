@@ -83,3 +83,13 @@ yes/no questions with consequences.
 - Pasting a squad takes one player per line: name, position, rating. Bad lines are skipped and
   reported with their line number.
 - Formation layouts live in `src/lib/formations.js` and must match the list on the server.
+
+## Notifications
+
+- The sidebar shows a count of unread notifications. It refreshes every minute while the tab
+  is visible, and when you come back to the tab.
+- `/notifications` lists them, newest first, with "All" and "Unread only". Selecting one marks
+  it read and opens its link, if it has one. "Mark all as read" clears the count.
+- The Email switches on the same page choose which kinds of notification also arrive by
+  email. Each switch saves straight away and flips back if the server refuses.
+- The list of kinds lives in `src/lib/notifications.js` and must match the server.

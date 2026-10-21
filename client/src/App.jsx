@@ -14,6 +14,7 @@ const Teams = lazy(() => import('./pages/Teams.jsx'));
 const TeamLayout = lazy(() => import('./pages/team/TeamLayout.jsx'));
 const SquadTab = lazy(() => import('./pages/team/SquadTab.jsx'));
 const LineupTab = lazy(() => import('./pages/team/LineupTab.jsx'));
+const Notifications = lazy(() => import('./pages/Notifications.jsx'));
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
               <Route index element={<SquadTab />} />
               <Route path="lineup" element={<LineupTab />} />
             </Route>
+            <Route path="/notifications" element={<Notifications />} />
             <Route element={<RequireAdmin />}>
               <Route path="/admin/players" element={<AdminPlayers />} />
             </Route>
