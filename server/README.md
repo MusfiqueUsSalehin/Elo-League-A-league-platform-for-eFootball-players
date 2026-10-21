@@ -121,3 +121,27 @@ Notes:
 - The paste import never fails on a bad line: good lines are added, and the rest come back in
   `skipped` with their line number and the reason.
 - Requests cannot set `owner`, `lineup` or any other field that is not listed above.
+
+## Notifications and email
+
+Other features call `notify(userIds, { type, title, body, link })`. It adds an in-app
+notification for each active user, and queues an email unless that person turned that kind of
+email off. It never throws, so a notification problem cannot make the action that caused it fail.
+
+Emails go into an outbox and a background worker sends them every 30 seconds, so a slow mail
+server never slows a request down. A failed send is retried after 2, 4, 8 and 16 minutes, then
+marked failed. Sent emails are removed after 30 days; notifications after 90.
+
+| Endpoint                              | Purpose                                                            |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| `GET /api/notifications`              | My notifications (`unread=true`, `page`, `limit`)                  |
+| `GET /api/notifications/unread-count` | How many I have not read                                           |
+| `POST /api/notifications/:id/read`    | Mark one read                                                      |
+| `POST /api/notifications/read-all`    | Mark all read                                                      |
+| `GET /api/notifications/preferences`  | Which kinds of notification I also want by email                   |
+| `PUT /api/notifications/preferences`  | Change some of them, for example `{ "email": { "match": false } }` |
+
+Kinds: account, tournament, match, result, reminder, announcement, system.
+
+Mail settings (`MAIL_MODE`, `SMTP_*`, `MAIL_FROM_*`) are listed in `.env.example`. Without
+`SMTP_HOST`, development writes emails to the log, and production sends none.
