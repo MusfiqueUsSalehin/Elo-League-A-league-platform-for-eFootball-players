@@ -4,6 +4,7 @@ import { createAuthRoutes } from './auth.routes.js';
 import { createHealthRoutes } from './health.routes.js';
 import { createNotificationRoutes } from './notifications.routes.js';
 import { createTeamRoutes } from './teams.routes.js';
+import { createTournamentRoutes } from './tournaments.routes.js';
 import { createUserRoutes } from './user.routes.js';
 
 export function createRoutes(deps) {
@@ -20,6 +21,7 @@ export function createRoutes(deps) {
   router.use('/users', createUserRoutes(routeDeps));
   router.use('/teams', createTeamRoutes(routeDeps));
   router.use('/notifications', createNotificationRoutes(routeDeps));
+  router.use('/tournaments', createTournamentRoutes(routeDeps));
 
   return router;
 }
