@@ -1,4 +1,4 @@
-import { Bell, LayoutDashboard, LogOut, Menu, Shield, Users, X } from 'lucide-react';
+import { Bell, LayoutDashboard, LogOut, Menu, Shield, Trophy, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -9,6 +9,7 @@ import { Avatar, cx } from '../ui/index.jsx';
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/teams', label: 'Teams', icon: Shield },
+  { to: '/tournaments', label: 'Tournaments', icon: Trophy },
   { to: '/notifications', label: 'Notifications', icon: Bell, showsUnread: true },
   { to: '/admin/players', label: 'Players', icon: Users, adminOnly: true },
 ];
