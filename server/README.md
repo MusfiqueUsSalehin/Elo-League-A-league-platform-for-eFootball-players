@@ -145,3 +145,25 @@ Kinds: account, tournament, match, result, reminder, announcement, system.
 
 Mail settings (`MAIL_MODE`, `SMTP_*`, `MAIL_FROM_*`) are listed in `.env.example`. Without
 `SMTP_HOST`, development writes emails to the log, and production sends none.
+
+## Tournaments
+
+Everyone signed in can look at competitions; only admins can create or change them. A draft is
+invisible to players until registration opens.
+
+| Endpoint                           | Who       | Purpose                                                      |
+| ---------------------------------- | --------- | ------------------------------------------------------------ |
+| `GET /api/tournaments`             | signed in | List (`q`, `status`, `format`, `page`, `limit`)              |
+| `GET /api/tournaments/:id`         | signed in | One competition, with counts of pending and approved entries |
+| `POST /api/tournaments`            | admin     | Create a draft                                               |
+| `PATCH /api/tournaments/:id`       | admin     | Edit name, description, size, dates, approval                |
+| `POST /api/tournaments/:id/status` | admin     | `draft`, `registration` or `cancelled`                       |
+| `DELETE /api/tournaments/:id`      | admin     | Delete an empty draft                                        |
+
+- Formats: `league` (set `legs` to 1 or 2) and `knockout` (always one leg). 2 to 64 teams.
+- Life cycle: draft, then registration, then active, then completed; cancelled from draft or
+  registration. Drawing the fixtures makes a competition active, which comes in a later step.
+- The format can only change while it is a draft, and the size cannot drop below the number of
+  teams that already entered. A started or finished competition cannot be edited.
+- Registration cannot be opened after its deadline, and a competition with teams in it cannot
+  go back to draft.
