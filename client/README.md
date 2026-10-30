@@ -93,3 +93,12 @@ yes/no questions with consequences.
 - The Email switches on the same page choose which kinds of notification also arrive by
   email. Each switch saves straight away and flips back if the server refuses.
 - The list of kinds lives in `src/lib/notifications.js` and must match the server.
+
+## Competitions
+
+- `/tournaments` lists leagues and cups with search and filters. Admins also see drafts and a
+  "New competition" button.
+- `/tournaments/:id` shows how a competition is played, who has entered, and what is happening.
+  Managers can enter one of their teams while entries are open, and withdraw it again. Admins
+  can edit, open entries, approve or turn down teams, remove a team, cancel, and delete a draft.
+- Fixtures and tables are added in the next step.
