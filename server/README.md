@@ -167,3 +167,19 @@ invisible to players until registration opens.
   teams that already entered. A started or finished competition cannot be edited.
 - Registration cannot be opened after its deadline, and a competition with teams in it cannot
   go back to draft.
+
+### Tournament entries
+
+| Endpoint                                       | Who            | Purpose                                                |
+| ---------------------------------------------- | -------------- | ------------------------------------------------------ |
+| `GET /api/tournaments/:id/entries`             | signed in      | Approved teams for everyone; yours too; admins see all |
+| `POST /api/tournaments/:id/entries`            | manager, admin | Enter a team (`{ teamId }`)                            |
+| `PATCH /api/tournaments/:id/entries/:entryId`  | admin          | Approve or turn down (`{ status }`)                    |
+| `DELETE /api/tournaments/:id/entries/:entryId` | owner, admin   | Withdraw a team while registration is open             |
+| `PUT /api/tournaments/:id/seeds`               | admin          | Number approved teams (`{ order: [entryId, ...] }`)    |
+
+- Teams can only enter while registration is open and before its deadline.
+- A team needs at least 11 squad players. A manager can have one team per competition.
+- Places count pending and approved entries, so a full competition refuses more.
+- With approval switched off, entries are approved straight away.
+- Admins are notified of a waiting entry; managers are told of a decision or removal.
