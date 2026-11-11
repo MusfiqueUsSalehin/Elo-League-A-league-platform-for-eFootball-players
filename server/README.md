@@ -183,3 +183,27 @@ invisible to players until registration opens.
 - Places count pending and approved entries, so a full competition refuses more.
 - With approval switched off, entries are approved straight away.
 - Admins are notified of a waiting entry; managers are told of a decision or removal.
+
+## Matches and fixtures
+
+A match belongs to a competition and has a round, two teams and their managers, a kick-off
+time and a status (`scheduled`, `live`, `awaiting_confirmation`, `completed`, `cancelled`).
+Scores and result confirmation arrive with the result endpoints.
+
+| Method and path                        | Who   | What                                                               |
+| -------------------------------------- | ----- | ------------------------------------------------------------------ |
+| `GET /api/matches`                     | any   | List. Filters: `tournament`, `team`, `status`, `mine=true`, paging |
+| `GET /api/matches/:id`                 | any   | One match with team and manager names                              |
+| `PATCH /api/matches/:id`               | admin | Move the kick-off of a match that has not started                  |
+| `POST /api/tournaments/:id/fixtures`   | admin | Draw the fixtures and start the competition                        |
+| `DELETE /api/tournaments/:id/fixtures` | admin | Withdraw fixtures nobody has started and reopen registration       |
+
+**Drawing** needs registration to be open, no waiting entries and at least two approved
+teams. A league is drawn at random with the circle method (home and away when `legs` is 2).
+A cup is seeded from the entries' `seed` (1 is the top seed), padded to a power of two, and
+the top seeds get byes. Round 1 kicks off at the competition's start date (or tomorrow if it
+is unset or past) and each round follows `intervalDays` later (default 2). The competition is
+claimed (`registration` to `active`) before matches are written, so a double draw is rejected
+and a failed write is rolled back.
+
+**Deleting a team** is refused while it is entered in a competition or has matches.
