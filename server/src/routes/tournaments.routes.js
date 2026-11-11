@@ -21,10 +21,12 @@ import {
   tournamentParams,
 } from '../controllers/tournamentEntries.controller.js';
 import { validate } from '../middleware/validate.js';
+import { createMatchesController, drawSchema } from '../controllers/matches.controller.js';
 
 export function createTournamentRoutes({ auth, notify }) {
   const router = Router();
   const entries = createEntriesController({ notify });
+  const matches = createMatchesController({ notify });
   router.use(auth.protect);
 
   // Everyone signed in can look; only an admin can change anything.
@@ -71,6 +73,15 @@ export function createTournamentRoutes({ auth, notify }) {
     validate(seedsSchema),
     entries.setSeeds
   );
+
+  router.post(
+    '/:id/fixtures',
+    auth.requireAdmin,
+    validate(idParams, 'params'),
+    validate(drawSchema),
+    matches.draw
+  );
+  router.delete('/:id/fixtures', auth.requireAdmin, validate(idParams, 'params'), matches.clear);
 
   return router;
 }

@@ -9,6 +9,8 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { onDuplicate } from '../utils/duplicates.js';
 import { escapeRegex } from '../utils/query.js';
 import { NOTHING_TO_CHANGE, atLeastOne, objectId } from '../utils/schemas.js';
+import Match from '../models/Match.js';
+import TournamentEntry from '../models/TournamentEntry.js';
 
 const teamName = z
   .string()
@@ -153,6 +155,12 @@ export const updateTeam = asyncHandler(async (req, res) => {
 
 export const deleteTeam = asyncHandler(async (req, res) => {
   const team = await loadTeam(req, { write: true });
+  if (await Match.exists({ $or: [{ homeTeam: team._id }, { awayTeam: team._id }] })) {
+    throw ApiError.conflict('This team has matches in a competition, so it cannot be deleted');
+  }
+  if (await TournamentEntry.exists({ team: team._id, status: { $in: ['pending', 'approved'] } })) {
+    throw ApiError.conflict('This team is entered in a competition. Take it out first.');
+  }
   // Squad first: if this stops halfway, the team is still there and can be deleted again.
   await Footballer.deleteMany({ team: team._id });
   await team.deleteOne();
