@@ -19,6 +19,7 @@ import {
   describeFormat,
   teamsLabel,
 } from '../lib/tournaments.js';
+import FixturesPanel from '../components/tournaments/FixturesPanel.jsx';
 
 const OPEN_ENTRY = ['pending', 'approved'];
 const ENTRY_TONES = { pending: 'gold', approved: 'green', rejected: 'red', withdrawn: 'neutral' };
@@ -264,6 +265,12 @@ function TournamentPage({ tournamentId }) {
           closeDialog();
           reload();
         }}
+      />
+      <FixturesPanel
+        tournament={tournament}
+        entries={entries}
+        isAdmin={isAdmin}
+        onChanged={reload}
       />
       <ConfirmDialog
         open={dialog?.type === 'cancel'}
