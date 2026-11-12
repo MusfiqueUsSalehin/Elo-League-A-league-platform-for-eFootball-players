@@ -102,3 +102,12 @@ yes/no questions with consequences.
   Managers can enter one of their teams while entries are open, and withdraw it again. Admins
   can edit, open entries, approve or turn down teams, remove a team, cancel, and delete a draft.
 - Fixtures and tables are added in the next step.
+
+## Matches and fixtures
+
+- `/matches` lists your matches (or everyone's) by kick-off time.
+- The competition page has a **Fixtures** panel. Once a competition is drawn it shows every
+  round; a cup round with unknown opponents shows "To be decided".
+- Admins get **Draw fixtures** while registration is open (disabled until at least two teams
+  are approved and no entry is waiting) and **Withdraw fixtures** until a match has started.
+- Helpers live in `src/lib/matches.js`; `useMatches` loads a list and ignores stale answers.
