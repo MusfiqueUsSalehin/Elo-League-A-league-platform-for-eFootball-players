@@ -17,6 +17,7 @@ const LineupTab = lazy(() => import('./pages/team/LineupTab.jsx'));
 const Notifications = lazy(() => import('./pages/Notifications.jsx'));
 const Tournaments = lazy(() => import('./pages/Tournaments.jsx'));
 const Tournament = lazy(() => import('./pages/Tournament.jsx'));
+const Matches = lazy(() => import('./pages/Matches.jsx'));
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/admin/players" element={<AdminPlayers />} />
             </Route>
             <Route path="*" element={<NotFound />} />
+            <Route path="/matches" element={<Matches />} />
           </Route>
         </Route>
       </Routes>

@@ -1,4 +1,14 @@
-import { Bell, LayoutDashboard, LogOut, Menu, Shield, Trophy, Users, X } from 'lucide-react';
+import {
+  Bell,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Shield,
+  Trophy,
+  Users,
+  X,
+  CalendarDays,
+} from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -12,6 +22,7 @@ const NAV_ITEMS = [
   { to: '/tournaments', label: 'Tournaments', icon: Trophy },
   { to: '/notifications', label: 'Notifications', icon: Bell, showsUnread: true },
   { to: '/admin/players', label: 'Players', icon: Users, adminOnly: true },
+  { to: '/matches', label: 'Matches', icon: CalendarDays },
 ];
 
 const linkClass = ({ isActive }) =>
